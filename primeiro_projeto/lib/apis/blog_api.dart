@@ -16,7 +16,9 @@ class BlogApi {
     // listagem
     router.get('/blog/noticias', (Request req) {
       List<NoticiaModel> noticias = _service.findAll();
-      return Response.ok(noticias);
+      List<Map> noticiasMap = noticias.map((e) => e.toJson()).toList();
+
+      return Response.ok(jsonEncode(noticiasMap));
     });
 
     // nova noticia
