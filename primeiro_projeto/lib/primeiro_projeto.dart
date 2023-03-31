@@ -1,6 +1,7 @@
-import 'package:primeiro_projeto/api/blog_api.dart';
-import 'package:primeiro_projeto/api/login_api.dart';
+import 'package:primeiro_projeto/apis/blog_api.dart';
+import 'package:primeiro_projeto/apis/login_api.dart';
 import 'package:primeiro_projeto/infra/custon_server.dart';
+import 'package:primeiro_projeto/services/noticia_service.dart';
 import 'package:primeiro_projeto/utils/custon_env.dart';
 import 'package:shelf/shelf.dart';
 
@@ -12,7 +13,7 @@ void main() async {
         LoginApi().handler,
       )
       .add(
-        BlogApi().handler,
+        BlogApi(NoticiaService()).handler,
       )
       .handler;
 
