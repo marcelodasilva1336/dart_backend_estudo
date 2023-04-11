@@ -1,6 +1,8 @@
 import 'package:primeiro_projeto/apis/blog_api.dart';
 import 'package:primeiro_projeto/apis/login_api.dart';
 import 'package:primeiro_projeto/infra/custon_server.dart';
+import 'package:primeiro_projeto/infra/middleware_interception.dart';
+import 'package:primeiro_projeto/infra/security/security_service_imp.dart';
 import 'package:primeiro_projeto/services/noticia_service.dart';
 import 'package:primeiro_projeto/utils/custon_env.dart';
 import 'package:shelf/shelf.dart';
@@ -10,15 +12,17 @@ void main() async {
 
   var cascadeHandler = Cascade()
       .add(
-        LoginApi().handler,
+        LoginApi(SecurityServiceImp()).handler,
       )
       .add(
         BlogApi(NoticiaService()).handler,
       )
       .handler;
 
-  var handler =
-      Pipeline().addMiddleware(logRequests()).addHandler(cascadeHandler);
+  var handler = Pipeline()
+      .addMiddleware(logRequests())
+      .addMiddleware(MiddlewareInterception().middleware)
+      .addHandler(cascadeHandler);
 
   await CustomServer().initialize(
     handler: handler,
