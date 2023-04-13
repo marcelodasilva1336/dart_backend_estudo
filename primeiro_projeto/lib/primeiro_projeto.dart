@@ -2,6 +2,7 @@ import 'package:primeiro_projeto/apis/blog_api.dart';
 import 'package:primeiro_projeto/apis/login_api.dart';
 import 'package:primeiro_projeto/infra/custon_server.dart';
 import 'package:primeiro_projeto/infra/middleware_interception.dart';
+import 'package:primeiro_projeto/infra/security/security_service.dart';
 import 'package:primeiro_projeto/infra/security/security_service_imp.dart';
 import 'package:primeiro_projeto/services/noticia_service.dart';
 import 'package:primeiro_projeto/utils/custon_env.dart';
@@ -10,9 +11,11 @@ import 'package:shelf/shelf.dart';
 void main() async {
   // CustomEnv.fromFil  e('.env-dev');
 
+  SecurityService _securityService = SecurityServiceImp();
+
   var cascadeHandler = Cascade()
       .add(
-        LoginApi(SecurityServiceImp()).handler,
+        LoginApi(_securityService).handler,
       )
       .add(
         BlogApi(NoticiaService()).handler,
@@ -22,7 +25,8 @@ void main() async {
   var handler = Pipeline()
       .addMiddleware(logRequests())
       .addMiddleware(MiddlewareInterception().middleware)
-      .addMiddleware(SecurityServiceImp().authorization)
+      .addMiddleware(_securityService.authorization)
+      .addMiddleware(_securityService.verityJwt)
       .addHandler(cascadeHandler);
 
   await CustomServer().initialize(
